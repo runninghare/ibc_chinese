@@ -1,15 +1,13 @@
-FROM nodesource/node:4.0
+FROM risingstack/alpine:3.4-v6.9.4-4.2.0
 
-RUN npm install -g tsd
-RUN npm install -g gulp-cli
-ADD package.json package.json
-ADD tsd.json tsd.json
+ENV PORT 3001
+
+EXPOSE 3001
+
+COPY package.json package.json
 RUN npm install
-RUN tsd install
 
-ADD . .
-RUN gulp ts
+COPY . .
+RUN npm run build
 
-EXPOSE 3000 
-
-CMD ["node", "bin/www"]
+CMD ["node", "dist/"]
