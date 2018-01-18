@@ -9,7 +9,7 @@ export class IbcDB {
     public static mongoose = mongoose;
 
     public static connect(): void {
-        mongoose.connect('mongodb://localhost/ibc_chinese');
+        mongoose.connect('mongodb://ibc:ibc@localhost/ibc_chinese');
     }
 
     public static disconnect(cb?: Function): void {
