@@ -8,7 +8,7 @@ import { User } from '../mongoose/user';
 // import * as firebase from 'firebase';
 var firebase = require("firebase");
 
-var serviceAccount = require("/Users/rossz/keys/ibc-app-94466-firebase-adminsdk-duh4r-7c081488cd.json");
+var serviceAccount = require(`${process.env.HOME}/keys/ibc-app-94466-firebase-adminsdk-duh4r-7c081488cd.json`);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
