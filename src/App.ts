@@ -2,40 +2,42 @@ import * as express from 'express'
 import * as jsdom from 'jsdom'
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
-import {JsDomRoute} from './routes/jsdom';
+import { JsDomRoute } from './routes/jsdom';
+import { Auth } from './routes/auth';
 
-import {Express, Request, Response} from 'express';
+import { Express, Request, Response } from 'express';
 
 class App {
-  public express: Express;
+    public express: Express;
 
-  constructor () {
-    this.express = express();
+    constructor() {
+        this.express = express();
 
-    this.express.use((req, res, next) => {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-      next();
-    });
+        this.express.use((req, res, next) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            next();
+        });
 
-    this.express.use(bodyParser.json());
-    this.express.use(bodyParser.urlencoded({extended: false}));
-    this.express.use(cookieParser());
+        this.express.use(bodyParser.json());
+        this.express.use(bodyParser.urlencoded({ extended: false }));
+        this.express.use(cookieParser());
 
-    this.mountRoutes();
-  }
+        this.mountRoutes();
+    }
 
-  private mountRoutes (): void {
-    const router = express.Router()    
-    router.get('/', (req, res) => {
-      res.json({
-        message: 'Hello World!'
-      })
-    })
+    private mountRoutes(): void {
+        const router = express.Router()
+        router.get('/', (req, res) => {
+            res.json({
+                message: 'Hello World!'
+            })
+        })
 
-    this.express.use('/', router);
-    this.express.use('/jsdom', new JsDomRoute().router);
-  }
+        this.express.use('/', router);
+        this.express.use('/jsdom', new JsDomRoute().router);
+        this.express.use('/auth', new Auth().router);
+    }
 }
 
 export default new App().express
