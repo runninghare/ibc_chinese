@@ -100,8 +100,13 @@ export class Auth {
 
             let body = req.body;
 
+            if (!body.username || !body.password) {
+                res.status(400).json({error: "you must provide username and password"});
+                return;
+            }
+
             User.connect();
-            User.model.find({ name: body.username, password: body.password || 'xxx' }, createAuthHandler(res));
+            User.model.find({ name: body.username.toLowerCase(), password: body.password.toLowerCase() || 'xxx' }, createAuthHandler(res));
         });
     }
 
