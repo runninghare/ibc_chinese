@@ -5,20 +5,23 @@ let user_data = [
         name: 'rossz', 
         password: 'password', 
         id: 'ibc_Leingie4oogit', 
-        email: 'ross.yuexin.zhu@gmail.com'
+        email: 'ross.yuexin.zhu@gmail.com',
+        access_level: 5
     },
     { 
         name: 'jillzhang', 
         password: 'password', 
         id: 'ibc_Uweefae9Gaith', 
-        email: 'zhangjingets7836@gmail.com'
+        email: 'zhangjingets7836@gmail.com',
+        access_level: 1
     },
     { 
         name: 'ibcchurch', 
         password: 'password', 
         id: 'ibc_Tha1ieg6Xou0l', 
-        email: 'chinese.islington@gmail.com'
-    },
+        email: 'chinese.islington@gmail.com',
+        access_level: 1
+    }
 ];
 
 // User.connect();

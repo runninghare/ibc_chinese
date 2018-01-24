@@ -34,8 +34,8 @@ let createAuthHandler = function(res: express.Response, signInProviderId?: strin
             return;
         }
 
-        // res.json(result);
-        admin.auth().createCustomToken(`${result[0].id}`)
+        console.log(result);
+        admin.auth().createCustomToken(`${result[0].id}`, {access_level: result[0].access_level})
             .then(function(token) {
 
                 res.json({
