@@ -94,7 +94,34 @@ export class Auth {
                     console.log("Error fetching user data:", error);
                     res.json(error);
                 });
-        })
+        });
+
+        this.router.post('/changepassword', (req, res) => {
+
+            let body = req.body;
+
+            if (!body.username || !body.oldpassword) {
+                res.status(400).json({error: "you must provide username and oldpassword"});
+                return;
+            }
+
+            if (!body.password1 || !body.password2 || body.password1 != body.password2) {
+                res.status(400).json({error: "the new password is missing or your inputs do not match."});
+                return;
+            }
+
+            User.connect();
+            User.model.update({ name: body.username.toLowerCase(), password: body.oldpassword.toLowerCase() || 'xxx' }, {
+                $set: { password: body.password1 }
+            }, (err, result) => {
+                if (err) {
+                    res.status(500).json(err);
+                    return;
+                }
+                
+                res.json(result);
+            });
+        });        
 
         this.router.post('/', (req, res) => {
 
@@ -107,7 +134,7 @@ export class Auth {
 
             User.connect();
             User.model.find({ name: body.username.toLowerCase(), password: body.password.toLowerCase() || 'xxx' }, createAuthHandler(res));
-        });
+        });        
     }
 
 }
