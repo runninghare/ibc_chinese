@@ -42,7 +42,21 @@ let user_data = [
         id: 'ibc_rool6ieT8Tee1', 
         email: '1139455487q@gmail.com',
         access_level: 1
-    },       
+    },
+    { 
+        name: 'lian', 
+        password: 'password', 
+        id: 'ibc_Quie7useca7yu', 
+        email: 'lian@unknown',
+        access_level: 1
+    },
+    { 
+        name: 'amosl',
+        password: 'password', 
+        id: 'ibc_AeNgu7thaiTei', 
+        email: 'lian@unknown',
+        access_level: 1
+    },    
     { 
         name: 'rossz', 
         password: 'password', 
