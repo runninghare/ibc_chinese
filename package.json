@@ -25,13 +25,16 @@
     "cookie-parser": "^1.4.3",
     "express": "4.15.3",
     "firebase": "^4.8.1",
-    "firebase-admin": "^5.6.0",
+    "firebase-admin": "^5.9.1",
     "ipaddr.js": "^1.5.2",
     "jquery": "^3.2.1",
     "jsdom": "^11.5.1",
     "mongoose": "^5.0.0-rc0",
     "nodemon": "1.11.0",
-    "typescript": "^2.3.3"
+    "passport": "^0.4.0",
+    "passport-http-bearer": "^1.0.1",
+    "typescript": "^2.3.3",
+    "yargs": "^11.0.0"
   },
   "devDependencies": {
     "@types/mocha": "2.2.41",

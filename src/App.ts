@@ -2,10 +2,13 @@ import * as express from 'express'
 import * as jsdom from 'jsdom'
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
+
 import { JsDomRoute } from './routes/jsdom';
 import { Auth } from './routes/auth';
-
+import { FirebaseHandler } from './routes/firebase';
 import { Express, Request, Response } from 'express';
+
+import { Passport } from './auth/authenticate';
 
 class App {
     public express: Express;
@@ -37,6 +40,7 @@ class App {
         this.express.use('/', router);
         this.express.use('/jsdom', new JsDomRoute().router);
         this.express.use('/auth', new Auth().router);
+        this.express.use('/firebase', Passport.authenticate('bearer', { session: false }), new FirebaseHandler().router);
     }
 }
 
