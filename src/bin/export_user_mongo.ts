@@ -6,7 +6,7 @@ User.connect();
 User.model.find({}, (err, result) => {
     console.log(result);
 
-    fs.writeFileSync('jsons/export-auth.json', JSON.stringify(result, null, 2));
+    fs.writeFileSync('jsons/export-data.json', JSON.stringify(result, null, 2));
 
     User.disconnect(() => {
         console.log('--- mongoose disconnected ---');

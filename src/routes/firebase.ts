@@ -43,8 +43,8 @@ export class FirebaseHandler {
 
                     if (receiver_id) {
                         Promise.all([
-                            db.ref(`/thread_map/${my_uid}---${receiver_uid}`).once('value'),
-                            db.ref(`/thread_map/${receiver_uid}---${my_uid}`).once('value')
+                            db.ref(`/threadMap/${my_uid}---${receiver_uid}`).once('value'),
+                            db.ref(`/threadMap/${receiver_uid}---${my_uid}`).once('value')
                         ]).then(result => {
                             let thread = result[0].val() || result[1].val();
                             // console.log(thread);
@@ -52,7 +52,7 @@ export class FirebaseHandler {
                                 res.json({thread});
                             } else {
                                 let new_thread_id = makeRandomString(10);
-                                db.ref(`/thread_map/${my_uid}---${receiver_uid}`).set(new_thread_id).then(() => {
+                                db.ref(`/threadMap/${my_uid}---${receiver_uid}`).set(new_thread_id).then(() => {
                                     res.json({ thread_id: new_thread_id });
                                 }, err => {
                                     res.status(400).json(err);
