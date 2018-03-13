@@ -60,23 +60,44 @@ export class FirebaseHandler {
                 let contacts = snapshots[2].val();
 
                 if (contacts && Object.keys(contacts).indexOf(`${receiverId}`) > -1) {
-                    let result = null;
+                    let threadKey = null;
+                    let thread = null;
                     
                     if (threads) {
+                        /* First we search the private conversations */
                         Object.keys(threads).forEach(k => {
                             let val = threads[k];
                             if (val.type == 'private' && val.participants[contactId] && val.participants[receiverId]) {
-                                result = k;
+                                threadKey = k;
+                                thread = threads[k];
                             }
                         });
+
+                        /* Then we search group chat */
+                        if (!threadKey) {
+                            Object.keys(threads).forEach(k => {
+                                let val = threads[k];
+                                if (val.type == 'public' && val.participants[contactId] && val.participants[receiverId]) {
+                                    threadKey = k;
+                                    thread = threads[k];
+                                }
+                            });
+                        }
                     }
 
-                    if (result) {
-                        res.json({result});
+                    if (threadKey) {
+                        if (thread && thread.type == "public") {
+                            db.ref(`/threads/${threadKey}/participants/${contactId}`).set(1).then(() => {
+                                res.json({ result: threadKey })
+                                return;
+                            }).catch(this.errorHandler(res));
+                        } else {
+                            res.json({result: threadKey});
+                        }
                     } else {
                         let newThreadId = makeRandomString(10);
                         db.ref(`/threads/${newThreadId}`).set({
-                            type: 'private',
+                            type: receiverId == '002'? 'public' : 'private',
                             participants: {
                               [contactId]: 1,
                               [receiverId]: 1
