@@ -18,6 +18,13 @@ export class FirebaseHandler {
 
     public router: express.Router;
 
+    errorHandler(res) {
+        return error => {
+            res.status(400);
+            res.json({error});
+        }
+    }
+
     constructor() {
         this.router = express.Router();
 
@@ -32,11 +39,63 @@ export class FirebaseHandler {
             // });
         })
 
-        this.router.post('/get_thread', (req, res, next) => {
-            let my_uid = req['user'] && req['user'].id;
+        this.router.post('/thread_with', (req, res, next) => {
+            let myUid = req['user'] && req['user'].id;
+            let receiverId = req.body && req.body.receiver_id;
 
-            if (req.body && req.body.receiver_id) {
+            if (!receiverId) {
+                res.status(400);
+                res.json({error: "You must post the receiver id via 'receiver_id' property"});
+                return;
+            }
+
+            Promise.all([
+               db.ref(`/userMap/${myUid}/contactId`).once('value'),
+               db.ref(`/threads`).once('value'),
+               db.ref(`/contacts`).once('value')
+            ])
+            .then(snapshots => {
+                let contactId = snapshots[0].val();
+                let threads = snapshots[1].val();
+                let contacts = snapshots[2].val();
+
+                if (contacts && Object.keys(contacts).indexOf(`${receiverId}`) > -1) {
+                    let result = null;
+                    
+                    if (threads) {
+                        Object.keys(threads).forEach(k => {
+                            let val = threads[k];
+                            if (val.type == 'private' && val.participants[contactId] && val.participants[receiverId]) {
+                                result = k;
+                            }
+                        });
+                    }
+
+                    if (result) {
+                        res.json({result});
+                    } else {
+                        let newThreadId = makeRandomString(10);
+                        db.ref(`/threads/${newThreadId}`).set({
+                            type: 'private',
+                            participants: {
+                              [contactId]: 1,
+                              [receiverId]: 1
+                            }
+                        }).then(() => {
+                            res.json({result: newThreadId})
+                            return;
+                        }).catch(this.errorHandler(res));
+                    }
+                } else {
+                    res.status(400);
+                    res.json({error: `Cannot find the contact ${receiverId}!`});
+                }
+
+            },this.errorHandler(res))
+
+/*            if (req.body && req.body.receiver_id) {
                 let receiver_id = req.body.receiver_id;
+                res.json({uid: my_uid});
                 db.ref("/users").once("value").then((snapshot) => {
                     let users = snapshot.val();
                     let receiver_uid = Object.keys(users).filter(uid => users[uid].id == receiver_id)[0];
@@ -72,7 +131,7 @@ export class FirebaseHandler {
             } else {
                 res.status(400);
                 res.end("You must post the receiver id via 'receiver_id' property");
-            }
+            }*/
         })
     }
 
