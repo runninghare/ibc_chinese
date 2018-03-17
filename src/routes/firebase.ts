@@ -55,7 +55,7 @@ export class FirebaseHandler {
                db.ref(`/contacts`).once('value')
             ])
             .then(snapshots => {
-                let contactId = snapshots[0].val();
+                let myContactId = snapshots[0].val();
                 let threads = snapshots[1].val();
                 let contacts = snapshots[2].val();
 
@@ -67,7 +67,7 @@ export class FirebaseHandler {
                         /* First we search the private conversations */
                         Object.keys(threads).forEach(k => {
                             let val = threads[k];
-                            if (val.type == 'private' && val.participants[contactId] && val.participants[receiverId]) {
+                            if (val.type == 'private' && val.participants[myContactId] && val.participants[receiverId]) {
                                 threadKey = k;
                                 thread = threads[k];
                             }
@@ -77,7 +77,7 @@ export class FirebaseHandler {
                         if (!threadKey) {
                             Object.keys(threads).forEach(k => {
                                 let val = threads[k];
-                                if (val.type == 'public' && val.participants[contactId] && val.participants[receiverId]) {
+                                if (val.type == 'public' && val.participants[receiverId]) {
                                     threadKey = k;
                                     thread = threads[k];
                                 }
@@ -87,7 +87,7 @@ export class FirebaseHandler {
 
                     if (threadKey) {
                         if (thread && thread.type == "public") {
-                            db.ref(`/threads/${threadKey}/participants/${contactId}`).set(1).then(() => {
+                            db.ref(`/threads/${threadKey}/participants/${myContactId}`).set(1).then(() => {
                                 res.json({ result: threadKey })
                                 return;
                             }).catch(this.errorHandler(res));
@@ -97,9 +97,9 @@ export class FirebaseHandler {
                     } else {
                         let newThreadId = makeRandomString(10);
                         db.ref(`/threads/${newThreadId}`).set({
-                            type: receiverId == '002'? 'public' : 'private',
+                            type: contacts[receiverId].class == 'group' ? 'public' : 'private',
                             participants: {
-                              [contactId]: 1,
+                              [myContactId]: 1,
                               [receiverId]: 1
                             }
                         }).then(() => {
