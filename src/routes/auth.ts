@@ -133,8 +133,8 @@ export class Auth {
             }
 
             User.connect();
-            User.model.find({ name: body.username.toLowerCase(), password: body.password.toLowerCase() || 'xxx' }, createAuthHandler(res));
-        });        
+            User.model.find({ name: body.username.replace(/\s+/g,'').toLowerCase(), password: body.password.replace(/\s+/g,'').toLowerCase() || 'xxx' }, createAuthHandler(res));
+        });
     }
 
 }

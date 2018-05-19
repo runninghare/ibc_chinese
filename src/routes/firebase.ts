@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as admin from 'firebase-admin';
+import * as moment from 'moment';
 
 import {FirebaseDB as db} from '../firebase';
 import {makeRandomString} from '../utils';
@@ -38,6 +39,36 @@ export class FirebaseHandler {
             //     next(err);
             // });
         })
+
+        this.router.post('/update_cache', (req, res, next) => {
+            db.ref(`/updateCaches`).once('value', snapshot => {
+                let val = snapshot.val();
+                val.forEach(v => {
+                    v.timestamp = moment().format('YYYY-MM-DD');
+                })
+                db.ref(`/updateCaches`).set(val).then(result => {
+                    res.json(val);
+                })
+            }, error => {
+                res.status(500).json(error);
+            })
+        });
+
+        this.router.post('/clear_notifications', (req, res, next) => {
+            db.ref('tasks').remove().then(() => {
+                res.json({ok: 200});
+            })
+            // db.ref(`/contacts`).once('value', snapshot => {
+            //     let contacts = snapshot.val();
+            //     Object.keys(contacts).forEach(k => {
+            //         let c = contacts[k];
+            //         c.tasks = [];
+            //     });
+            //     db.ref(`/contacts`).set(contacts).then(result => {
+            //         res.json(contacts);
+            //     })
+            // });
+        });
 
         this.router.post('/thread_with', (req, res, next) => {
             let myUid = req['user'] && req['user'].id;
