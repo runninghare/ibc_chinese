@@ -11,8 +11,8 @@ import {FirebaseDB as db} from '../firebase';
 let iosUrl = "https://itunes.apple.com/us/app/依斯靈頓中文教會/id1338517393?ls=1&mt=8";
 let androidUrl = "https://play.google.com/store/apps/details?id=com.rjwebsolution.ibcchinese";
 
-// let usernames = ['rossz', 'jillzhang', 'wilsonc', 'selinal', 'jackc', 'dawny', 'pauliney', 'amosl', 'marcol'];
-let usernames = ['rossz'];
+let usernames = ['rossz', 'jillzhang', 'wilsonc', 'selinal', 'jackc', 'dawny', 'pauliney', 'amosl', 'marcol'];
+// let usernames = ['rossz'];
 
 User.connect();
 
