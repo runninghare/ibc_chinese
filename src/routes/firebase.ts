@@ -31,13 +31,13 @@ export class FirebaseHandler {
 
         this.router.get('/user', (req, res, next) => {
 
-            // res.json(req['user']);
+            res.json(req['user']);
 
-            db.ref("/contacts").once("value").then((snapshot) => {
-                res.json(snapshot.val());
-            }, err => {
-                next(err);
-            });
+            // db.ref("/contacts").once("value").then((snapshot) => {
+            //     res.json(snapshot.val());
+            // }, err => {
+            //     next(err);
+            // });
         })
 
         this.router.post('/update_cache', (req, res, next) => {
