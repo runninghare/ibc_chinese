@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as admin from 'firebase-admin';
+import { Passport } from '../auth/authenticate';
 
 import { User } from '../mongoose/user';
 
@@ -118,10 +119,48 @@ export class Auth {
                     res.status(500).json(err);
                     return;
                 }
+
+                if (!result.n) {
+                    res.status(400).json({error: "username and the old password do not match!"})
+                } else if (!result.nModified) {
+                    res.status(400).json({error: "You new password cannot be same as the old one!"})
+                } else {
+                    res.json({success: 1});
+                }
                 
-                res.json(result);
             });
         });        
+
+        this.router.post('/changeemail', Passport.authenticate('bearer', { session: false }), (req, res) => {
+
+            let email = req.body.email;
+
+            if (!email) {
+                res.status(400).json({error: 'Body must contain "email" property.'})
+                return;
+            }
+
+            let id = req['user'] && req['user'].id;
+
+            User.model.update({ id }, {
+                $set: { email }
+            }, (err, result) => {
+                if (err) {
+                    res.status(500).json(err);
+                    return;
+                }
+
+                if (!result.n) {
+                    res.status(400).json({error: "Can't find the matching user!"})
+                } else if (!result.nModified) {
+                    res.json({success: 0})
+                } else {
+                    res.json({success: 1});
+                }
+                
+            });            
+
+        });         
 
         this.router.post('/', (req, res) => {
 

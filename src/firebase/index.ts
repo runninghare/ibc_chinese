@@ -5,7 +5,7 @@ var serviceAccount = require('../../jsons/ibc-app-94466-firebase-adminsdk-duh4r-
 
 let app = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://ibc-app-94466.firebaseio.com"
+  databaseURL: "https://ibc-app-94466-c9f76.firebaseio.com"
 }, 'ibcchinese');
 
 export const FirebaseDB = admin.database(app);

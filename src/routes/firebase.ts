@@ -55,9 +55,15 @@ export class FirebaseHandler {
         });
 
         this.router.post('/clear_notifications', (req, res, next) => {
-            db.ref('tasks').remove().then(() => {
-                res.json({ok: 200});
+            let myUid = req['user'] && req['user'].id;
+
+            db.ref(`/userMap/${myUid}/contactId`).once('value').then(myContactId => {
+                db.ref(`tasks/${myContactId}`).remove().then(() => {
+                    res.json({ok: 200});
+                });
             })
+
+
             // db.ref(`/contacts`).once('value', snapshot => {
             //     let contacts = snapshot.val();
             //     Object.keys(contacts).forEach(k => {

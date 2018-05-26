@@ -16,6 +16,6 @@ Object.keys(user_data.users).forEach(k => {
 });
 user_data.users = undefined;
 
-fs.writeFileSync("./jsons/export-data.json", JSON.stringify(user_data, null, 2));
+// fs.writeFileSync("./jsons/export-data.json", JSON.stringify(user_data, null, 2));
 
 console.log(user_data);

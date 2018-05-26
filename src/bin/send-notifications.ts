@@ -23,6 +23,7 @@ const args = argv.option([
 let confirm = args.options.confirm;
 let users = args.options.users;
 
+// node dist/bin/send-notifications.js -u rossz,jillzhang,wilsonc,selinal,jackc,dawny,pauliney,amosl,marcol
 if (!users) {
     console.log('You must use --users=user1,user2, or -u user1,user2 to specify SMS recipients!');
     process.exit(0);
@@ -57,11 +58,11 @@ function sendNotification(names: string[], calback?: Function) {
         User.model.find({name: {$in: names}}, (err, result) => {
 
             let notifs = result.map(doc => {
-                let contact = contacts.filter(c => c.email == doc.email)[0];
+                let contact = contacts.filter(c => c.username == doc.name)[0];
 
                 return {
                     name: doc.name,
-                    email: doc.email,
+                    email: contact.email,
                     mobile: contact && contact.mobile,
                     password: doc.password
                 }
@@ -81,7 +82,7 @@ function sendNotification(names: string[], calback?: Function) {
                     notifs.map(notif => telstra.sendSMS(notif.mobile,
     `這是一條依斯靈頓中文教會自動發送的短消息，請勿回復。
 
-依斯靈頓中文教會APP已上線，可在Apple Store或Play Store中輸入「IBC Chinese」獲取。 現邀請您測試！
+依斯靈頓中文教會APP已上線，可在Apple Store或Play Store中輸入「Islington Chinese」獲取。 現邀請您測試！
 
 您的用戶名：${notif.name}
 您的密碼：${notif.password}`
