@@ -5,6 +5,7 @@ import * as cookieParser from 'cookie-parser';
 
 import { JsDomRoute } from './routes/jsdom';
 import { Auth } from './routes/auth';
+import { WeChatRoute } from './routes/wechat';
 import { FirebaseHandler } from './routes/firebase';
 import { Express, Request, Response } from 'express';
 
@@ -44,6 +45,7 @@ class App {
         this.express.use('/', router);
         this.express.use('/jsdom', new JsDomRoute().router);
         this.express.use('/auth', new Auth().router);
+        this.express.use('/wechat', new WeChatRoute().router);
         this.express.use('/firebase', Passport.authenticate('bearer', { session: false }), new FirebaseHandler().router);
     }
 }

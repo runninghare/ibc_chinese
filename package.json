@@ -38,6 +38,7 @@
     "nodemon": "1.11.0",
     "passport": "^0.4.0",
     "passport-http-bearer": "^1.0.1",
+    "request": "^2.87.0",
     "telstra-api": "^0.2.1",
     "typescript": "^2.3.3",
     "yargs": "^11.0.0"
