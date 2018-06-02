@@ -23,7 +23,7 @@ admin.initializeApp({
 //     // });
 // }
 
-let createAuthHandler = function(res: express.Response, signInProviderId?: string) {
+export function createAuthHandler(res: express.Response) {
     return (err, result) => {
         if (err) {
             res.status(500).json(err);
@@ -35,7 +35,12 @@ let createAuthHandler = function(res: express.Response, signInProviderId?: strin
             return;
         }
 
-        admin.auth().createCustomToken(`${result[0].id}`, {access_level: result[0].access_level})
+        let extraTokenData = {access_level: result[0].access_level};
+        if (result[0].wechat) {
+            extraTokenData['wechat'] = result[0].wechat;
+        }
+
+        admin.auth().createCustomToken(`${result[0].id}`, extraTokenData)
             .then(function(token) {
 
                 res.json({
@@ -70,7 +75,7 @@ export class Auth {
                     });
             } else {
                 User.connect();
-                User.model.find({ id: uid }, createAuthHandler(res, uid));
+                User.model.find({ id: uid }, createAuthHandler(res));
 
                 // admin.auth().getUser(uid)
                 //     .then(userRecord => {

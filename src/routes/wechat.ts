@@ -4,6 +4,7 @@ import * as jquery from 'jquery';
 import * as request from 'request';
 import { User } from '../mongoose/user';
 import { Passport } from '../auth/authenticate';
+import { createAuthHandler } from './auth';
 
 const app = "wx89037f9e4c83dc79";
 const app_secret = "955e60036f832584014d4877f89e38e1";
@@ -57,7 +58,27 @@ export class WeChatRoute {
             let code = req.body && req.body.code;
 
             this.wechatAuth(code).then(userInfo => {
-                res.json(userInfo);
+                let openid = userInfo.openid;
+                let unionid = userInfo.unionid;
+
+                // res.json(userInfo);
+
+                User.connect();
+                User.model.find({ "wechat.openid": openid, "wechat.unionid": unionid }, (err,data) => {
+                    if (err) {
+                        res.status(500).json(err);
+                    } else {
+                        User.model.update({ "wechat.openid": openid, "wechat.unionid": unionid }, {
+                            $set: { wechat: userInfo }
+                        }, (err1, data1) => {
+                            if (err1) {
+                                res.status(500).json(err);
+                            } else {
+                                createAuthHandler(res)(err, data);
+                            }
+                        });
+                    }
+                });
             }).catch(err => {
                 res.status(401).json(err);
             });
@@ -68,11 +89,9 @@ export class WeChatRoute {
             let id = req['user'] && req['user'].id;
 
             this.wechatAuth(code).then(userInfo => {
-                let wechat_openid = userInfo.openid;
-                let wechat_unionid = userInfo.unionid;
 
                 User.model.update({ id }, {
-                    $set: { wechat_openid, wechat_unionid }
+                    $set: { wechat: userInfo }
                 }, (err, result) => {
                     if (err) {
                         res.status(500).json(err);
@@ -82,9 +101,9 @@ export class WeChatRoute {
                     if (!result.n) {
                         res.status(400).json({ error: "Can't find the matching user!" })
                     } else if (!result.nModified) {
-                        res.json({ success: 0 })
+                        res.json(userInfo)
                     } else {
-                        res.json({ success: 1 });
+                        res.json(userInfo);
                     }
 
                 });
