@@ -16,12 +16,12 @@ admin.initializeApp({
     databaseURL: "https://ibc-app-94466.firebaseio.com"
 });
 
-let signInWithToken = (token:string, providerId): Promise<any> => {
-    return firebase.auth().signInWithCustomToken(token);
-    // return firebase.auth().signInWithCustomToken(token).then(() => {
-    //     return firebase.auth().currentUser.linkWithCredential({providerId})
-    // });
-}
+// let signInWithToken = (token:string, providerId): Promise<any> => {
+//     return firebase.auth().signInWithCustomToken(token);
+//     // return firebase.auth().signInWithCustomToken(token).then(() => {
+//     //     return firebase.auth().currentUser.linkWithCredential({providerId})
+//     // });
+// }
 
 let createAuthHandler = function(res: express.Response, signInProviderId?: string) {
     return (err, result) => {
@@ -35,7 +35,6 @@ let createAuthHandler = function(res: express.Response, signInProviderId?: strin
             return;
         }
 
-        console.log(result);
         admin.auth().createCustomToken(`${result[0].id}`, {access_level: result[0].access_level})
             .then(function(token) {
 
@@ -48,14 +47,6 @@ let createAuthHandler = function(res: express.Response, signInProviderId?: strin
                 res.status(400).json(error);
             });
     };
-
-    // var user1 = new User({ name: 'user1', password: 'password' });
-    // User.save(user1, function(err, result) {
-    //     if (err) {
-    //         res.json(err);
-    //     }
-    //     res.json(result);
-    // });
 };
 
 export class Auth {
@@ -68,33 +59,34 @@ export class Auth {
         this.router.post('/uid', (req, res) => {
             let uid = req.body && req.body.uid;
 
-            admin.auth().getUser(uid)
-                .then(userRecord => {
-                    // See the UserRecord reference doc for the contents of userRecord.
-                    // console.log("Successfully fetched user data:", userRecord.toJSON());
-                    
-                    /* Delete the user if his uid is not from our DB */ 
-                    if (!uid.match(/^ibc_/)) {
-                        admin.auth().deleteUser(uid)
-                            .then(function() {
-                                console.log("Successfully deleted user");
-                            })
-                            .catch(function(error) {
-                                console.log("Error deleting user:", error);
-                            });
-                    }
 
-                    if (userRecord && userRecord.email) {
-                        User.connect();
-                        User.model.find({ email: userRecord.email }, createAuthHandler(res, uid));
-                    }
+            if (!uid.match(/^ibc_/)) {
+                admin.auth().deleteUser(uid)
+                    .then(function() {
+                        res.status(400).json({Error: 'unidentified firebase account, removed!'});
+                    })
+                    .catch(function(error) {
+                        res.status(500).json({Error: 'Cannot remove unidentified firebase account!'});
+                    });
+            } else {
+                User.connect();
+                User.model.find({ id: uid }, createAuthHandler(res, uid));
 
-                    console.log(userRecord);
-                })
-                .catch(error => {
-                    console.log("Error fetching user data:", error);
-                    res.json(error);
-                });
+                // admin.auth().getUser(uid)
+                //     .then(userRecord => {
+
+                //         if (userRecord && userRecord.uid) {
+                //             User.connect();
+                //             User.model.find({ id: userRecord.uid }, createAuthHandler(res, uid));
+                //         }
+
+                //         console.log(userRecord);
+                //     })
+                //     .catch(error => {
+                //         console.log("Error fetching user data:", error);
+                //         res.json(error);
+                //     });
+            }            
         });
 
         this.router.post('/changepassword', (req, res) => {
@@ -158,9 +150,8 @@ export class Auth {
                     res.json({success: 1});
                 }
                 
-            });            
-
-        });         
+            });
+        });     
 
         this.router.post('/', (req, res) => {
 

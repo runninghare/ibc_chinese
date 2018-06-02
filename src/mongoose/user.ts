@@ -6,7 +6,9 @@ var UserSchema = IbcDB.mongoose.Schema({
     name: String,
     password: String,
     email: String,
-    access_level: Number
+    access_level: Number,
+    wechat_openid: String,
+    wechat_unionid: String
 });
 
 UserSchema.index({ name: 1 }, { unique: true });
