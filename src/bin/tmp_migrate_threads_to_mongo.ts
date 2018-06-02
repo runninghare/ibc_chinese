@@ -30,5 +30,5 @@ db.ref(`/threads`).once('value', snapshot => {
             console.log('--- mongoose disconnected ---');
             process.exit(0);
         });
-    }
-}
+    });
+});
