@@ -4,6 +4,7 @@ import * as moment from 'moment';
 
 import {FirebaseDB as db} from '../firebase';
 import {makeRandomString} from '../utils';
+import {Thread, IntThread, IntMessage} from '../mongoose/thread';
 
 // var serviceAccount = require('../../jsons/ibc-app-94466-firebase-adminsdk-duh4r-4e0ae9fae6.json');
 
@@ -88,13 +89,29 @@ export class FirebaseHandler {
 
             Promise.all([
                db.ref(`/userMap/${myUid}/contactId`).once('value'),
-               db.ref(`/threads`).once('value'),
-               db.ref(`/contacts`).once('value')
+               // db.ref(`/threads`).once('value'),
+               Thread.read<IntThread>({}),
+               db.ref(`/contacts`).once('value'),
+               db.ref(`/threads`).once('value')
             ])
             .then(snapshots => {
                 let myContactId = snapshots[0].val();
-                let threads = snapshots[1].val();
                 let contacts = snapshots[2].val();
+                // let threads = snapshots[1].val();
+                let threads_array = snapshots[1];
+                let threads = {};
+                if (threads_array) {
+                    threads_array.forEach(t => {
+                        threads[t.id] = t;
+                    });
+                }
+                let firebase_threads = snapshots[3].val();
+
+                // Thread.getThreads({}).then(result => {
+                //     res.json(result);
+                // }).catch(err => {
+                //     res.status(400).json(err);
+                // });
 
                 if (contacts && Object.keys(contacts).indexOf(`${receiverId}`) > -1) {
                     let threadKey = null;
@@ -125,24 +142,57 @@ export class FirebaseHandler {
                     if (threadKey) {
                         if (thread && thread.type == "public") {
                             db.ref(`/threads/${threadKey}/participants/${myContactId}`).set(1).then(() => {
-                                res.json({ result: threadKey })
+                                res.json({ result: threadKey, thread })
                                 return;
                             }).catch(this.errorHandler(res));
                         } else {
-                            res.json({result: threadKey});
+                            res.json({result: threadKey, thread});
                         }
                     } else {
+
+                        /* Make sure there are no matching threads in firebase as well, otherwise
+                        we have to eliminate them because DB is the first-hand data source */
+
+                        let obsolete_keys = [];
+                        Object.keys(firebase_threads).forEach(k => {
+                            let val = firebase_threads[k];
+                            if ((val.type == 'private' && 
+                                val.participants[myContactId] && val.participants[receiverId]) ||
+                                (val.type == 'public' && val.participants[receiverId])) {
+                                obsolete_keys.push(k);
+                            }
+                        });
+
+
+                        obsolete_keys.forEach(k => {
+                            db.ref(`threads/${k}`).remove();
+                        });
+
+                        // res.json(firebase_threads);
+                        // res.json(obsolete_keys);
+
                         let newThreadId = makeRandomString(10);
-                        db.ref(`/threads/${newThreadId}`).set({
+                        let newThread = {
                             type: contacts[receiverId].class == 'group' ? 'public' : 'private',
                             participants: {
                               [myContactId]: 1,
                               [receiverId]: 1
                             }
-                        }).then(() => {
-                            res.json({result: newThreadId})
-                            return;
-                        }).catch(this.errorHandler(res));
+                        };
+
+                        db.ref(`/threads/${newThreadId}`).set(newThread)
+                            .then(res => {
+                                // console.log(`--- firebase inserted: ${newThreadId} ---`);
+                                return Thread.insert(Object.assign({},newThread, {id: newThreadId}));
+                            })
+                            .then(() => {
+                                res.json({result: newThreadId, thread: newThread})
+                                return;
+                            }).catch(err => {
+                                console.log('err occurred!');
+                                console.log(err);
+                                this.errorHandler(res);
+                            });
                     }
                 } else {
                     res.status(400);
@@ -190,7 +240,59 @@ export class FirebaseHandler {
                 res.status(400);
                 res.end("You must post the receiver id via 'receiver_id' property");
             }*/
-        })
+        });
+
+        this.router.post('/thread_add_msg', (req, res, next) => {
+            let myUid = req['user'] && req['user'].id;
+            let threadId = req.body && req.body.thread_id;
+            let message: IntMessage = req.body && req.body.message;
+
+            if (!threadId || !message) {
+                res.status(400);
+                res.json({error: "You must provide threadId and message body"});
+                return;
+            }
+
+            Promise.all([
+               db.ref(`/userMap/${myUid}/contactId`).once('value'),
+               Thread.read<IntThread>({id: threadId})
+            ]).then(data => {
+                let myContactId = data && data[0].val();
+                let threads = data && data[1];
+
+                message.sender = `${myContactId}`;
+                message.timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+
+                if (threads && threads.length > 0) {
+                    let thread = threads[0];
+                    thread.messages.push(message);
+
+                    let fb_thread = {
+                        participants: thread.participants,
+                        messages: thread.messages.map(m => {
+                            return {
+                                body: m.body,
+                                sender: `${m.sender}`,
+                                timestamp: m.timestamp
+                            };
+                        }),
+                        type: thread.type
+                    };
+
+                    // res.json(thread.messages);
+
+                    // Firebase only store the most recent message
+                    // Mongo stores all messages
+                    // 
+                    Promise.all([
+                        db.ref(`/threads/${threadId}/messages`).set([message]),
+                        Thread.update({id: threadId}, {$set: {messages: thread.messages}})
+                    ]).then(result => {
+                        res.json(message);
+                    });
+                }
+            });
+        });
     }
 
 }

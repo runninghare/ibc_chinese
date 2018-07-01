@@ -1,8 +1,8 @@
 import {IbcDB} from './base';
 
 export interface IntMessage {
-  sender: number|string;
-  timestamp: string;
+  sender?: string;
+  timestamp?: string;
   body: string;
 }
 
@@ -17,7 +17,7 @@ var ThreadSchema = IbcDB.mongoose.Schema({
   id: String,
   type: String,
   participants: {},
-  messages: [{sender: Number, timestamp: String, body: String}]
+  messages: [{sender: String, timestamp: String, body: String}]
 });
 
 export class Thread extends IbcDB {
@@ -28,4 +28,16 @@ export class Thread extends IbcDB {
         super();
         return Thread.model(data);
     }
+
+    // public static getThreads(query: any): Promise<IntThread[]> {
+    //     return new Promise<IntThread[]>((resolve, reject) => {
+    //         Thread.model.find(query, (err, result) => {
+    //           if (err) {
+    //             reject(err);
+    //           } else {
+    //             resolve(result);
+    //           }
+    //         })
+    //     });
+    // }
 }

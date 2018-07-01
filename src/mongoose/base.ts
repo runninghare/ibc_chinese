@@ -30,6 +30,48 @@ export class IbcDB {
         return mongoose.connection;
     }
 
+    public static read<T>(query: any): Promise<T[]> {
+        // const child_constructor = this.constructor as typeof IbcDB;
+
+        return new Promise<T[]>((resolve, reject) => {
+            (this as any).model.find(query, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+        });
+    }
+
+    public static insert<T>(data: any): Promise<T[]> {
+        // const child_constructor = this.constructor as typeof IbcDB;
+
+        return new Promise<T[]>((resolve, reject) => {
+            (this as any).model.create(data, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+        });
+    }
+
+    public static update<T>(query: any, body: any): Promise<T[]> {
+        // const child_constructor = this.constructor as typeof IbcDB;
+
+        return new Promise<T[]>((resolve, reject) => {
+            (this as any).model.update(query, body, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+        });
+    }
+
 }
 
 // db.on('error', console.error.bind(console, 'connection error:'));
