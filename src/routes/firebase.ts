@@ -96,6 +96,19 @@ export class FirebaseHandler {
             ])
             .then(snapshots => {
                 let myContactId = snapshots[0].val();
+
+                // console.log(`myUid = ${myUid}, receiverId = ${receiverId}`);
+
+                if (!myContactId) {
+                    throw("Failed to retrieve sender Id from the uid token.");
+                    // res.status(500).json({Error: "Failed to retrieve sender Id from the uid token."});
+                }
+
+                if (myContactId == receiverId) {
+                    throw("Sender and receiver must be different!");
+                    // res.status(400).json({Error: "sender and receiver must be different!"});
+                }
+
                 let contacts = snapshots[2].val();
                 // let threads = snapshots[1].val();
                 let threads_array = snapshots[1];
@@ -199,7 +212,7 @@ export class FirebaseHandler {
                     res.json({error: `Cannot find the contact ${receiverId}!`});
                 }
 
-            },this.errorHandler(res))
+            }).catch(this.errorHandler(res));
 
 /*            if (req.body && req.body.receiver_id) {
                 let receiver_id = req.body.receiver_id;
