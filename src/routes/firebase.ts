@@ -152,19 +152,38 @@ export class FirebaseHandler {
                         }
                     }
 
-                    if (threadKey) {
-                        if (thread && thread.type == "public") {
-                            db.ref(`/threads/${threadKey}/participants/${myContactId}`).set(1).then(() => {
-                                res.json({ result: threadKey, thread })
-                                return;
-                            }).catch(this.errorHandler(res));
-                        } else {
-                            res.json({result: threadKey, thread});
-                        }
+                    if (threadKey && thread) {
+
+                        let threadMessages: IntMessage[] = thread.messages.map(m => {
+                            return {
+                                body: m.body,
+                                sender: `${m.sender}`,
+                                timestamp: m.timestamp
+                            };
+                        });                        
+
+                        db.ref(`/threads/${threadKey}`).set({
+                            id: threadKey,
+                            type: thread.type,
+                            participants: thread.participants,
+                            messages: threadMessages.length > 0 ? [threadMessages[threadMessages.length - 1]] : []
+                        }).then(() => {
+                            if (thread.type == "public") {
+                                db.ref(`/threads/${threadKey}/participants/${myContactId}`).set(1).then(() => {
+                                    res.json({ result: threadKey, thread })
+                                    return;
+                                }).catch(this.errorHandler(res));
+                            } else {
+                                res.json({ result: threadKey, thread });
+                            }
+                        }, error => res.status(500).json({ Error: error }));
+
                     } else {
 
                         /* Make sure there are no matching threads in firebase as well, otherwise
                         we have to eliminate them because DB is the first-hand data source */
+
+                        // console.log('--- no firebase threads! ---');
 
                         let obsolete_keys = [];
                         Object.keys(firebase_threads).forEach(k => {
