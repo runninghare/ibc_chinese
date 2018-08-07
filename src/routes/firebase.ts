@@ -154,13 +154,14 @@ export class FirebaseHandler {
 
                     if (threadKey && thread) {
 
+
                         let threadMessages: IntMessage[] = thread.messages.map(m => {
                             return {
                                 body: m.body,
                                 sender: `${m.sender}`,
                                 timestamp: m.timestamp
                             };
-                        });                        
+                        });   
 
                         db.ref(`/threads/${threadKey}`).set({
                             id: threadKey,
