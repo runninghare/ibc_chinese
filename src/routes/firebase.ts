@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as admin from 'firebase-admin';
-import * as moment from 'moment';
+// import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 
 import {FirebaseDB as db} from '../firebase';
 import {makeRandomString} from '../utils';
@@ -45,7 +46,7 @@ export class FirebaseHandler {
             db.ref(`/updateCaches`).once('value', snapshot => {
                 let val = snapshot.val();
                 val.forEach(v => {
-                    v.timestamp = moment().format('YYYY-MM-DD');
+                    v.timestamp = moment().tz('Australia/Sydney').format('YYYY-MM-DD');
                 })
                 db.ref(`/updateCaches`).set(val).then(result => {
                     res.json(val);
@@ -294,7 +295,7 @@ export class FirebaseHandler {
                 let threads = data && data[1];
 
                 message.sender = `${myContactId}`;
-                message.timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+                message.timestamp = moment().tz('Australia/Sydney').format('YYYY-MM-DD HH:mm:ss');
 
                 if (threads && threads.length > 0) {
                     let thread = threads[0];
