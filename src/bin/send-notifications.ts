@@ -82,7 +82,7 @@ function sendNotification(names: string[], calback?: Function) {
                     notifs.map(notif => telstra.sendSMS(notif.mobile,
     `這是一條依斯靈頓中文教會自動發送的短消息，請勿回復。
 
-依斯靈頓中文教會APP已上線，可在Apple Store或Play Store中輸入「Islington Chinese」獲取。 現邀請您測試！
+依斯靈頓中文教會APP已更新至0.0.5，可在Apple Store或Play Store中輸入「Islington Chinese」獲取。 現诚邀您測試！
 
 您的用戶名：${notif.name}
 您的密碼：${notif.password}`
