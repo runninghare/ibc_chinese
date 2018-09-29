@@ -42,6 +42,27 @@ export class FirebaseHandler {
             // });
         })
 
+        this.router.post('/update_db', (req, res, next) => {
+            let body = req.body;
+            let key = body && body.key;
+            let value = body && body.value;
+            let access_level = req['user'] && req['user'].access_level;
+            if (!key || !value) {
+                res.status(400).json({error: 'missing key or value property'});
+            } else if (access_level >= 5) {
+                db.ref(`/`).once('value', snapshot => {
+                    let oldFullList = snapshot.val();
+                    db.ref(key).set(value).then(result => {
+                        res.json(oldFullList);
+                    })
+                }, error => {
+                    res.status(500).json(error);
+                })
+            } else {
+                res.status(401).json({error: "You don't have permission to do this operation"});
+            }
+        });
+
         this.router.post('/update_cache', (req, res, next) => {
             db.ref(`/updateCaches`).once('value', snapshot => {
                 let val = snapshot.val();
