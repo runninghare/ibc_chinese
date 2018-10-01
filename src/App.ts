@@ -7,6 +7,7 @@ import { JsDomRoute } from './routes/jsdom';
 import { Auth } from './routes/auth';
 import { WeChatRoute } from './routes/wechat';
 import { FirebaseHandler } from './routes/firebase';
+import { SMSRoute } from './routes/sms';
 import { Express, Request, Response } from 'express';
 
 import { Passport } from './auth/authenticate';
@@ -47,6 +48,7 @@ class App {
         this.express.use('/auth', new Auth().router);
         this.express.use('/wechat', new WeChatRoute().router);
         this.express.use('/firebase', Passport.authenticate('bearer', { session: false }), new FirebaseHandler().router);
+        this.express.use('/sms', Passport.authenticate('bearer', { session: false }), new SMSRoute().router);
     }
 }
 
