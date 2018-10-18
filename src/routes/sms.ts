@@ -29,6 +29,7 @@ export class SMSRoute {
             }
 
             let users = body.users;
+            let sendSms = body.send_sms;
 
             if (!users || !users.length) {
                 res.status(400).json({error: 'You must provide at least 1 user in "users" property'});
@@ -55,17 +56,25 @@ export class SMSRoute {
                         $set: { password: newPassword }
                     }).then(res => {
                         if (res && res.nModified && user.mobile) {
-                            return telstra.sendSMS(user.mobile, Mustache.render(body && body.template ||
+                            if (sendSms) {
+                                return telstra.sendSMS(user.mobile, Mustache.render(body && body.template ||
 `您好，您的依斯靈頓中文教會APP密碼已重置。
 用戶名：{{username}}
-新密碼：{{password}}, 請盡快登錄後修改`, Object.assign({}, user, {password: newPassword})));
+新密碼：{{password}}, 請盡快登錄後修改`, Object.assign({}, user, {password: newPassword}))).then(res => {
+                                    return {ok: 1, username: user.username, password: newPassword, smsRes: res};
+                                });
+                            } else {
+                                return {ok: 1, username: user.username, password: newPassword};
+                            }
                         } else {
-                            return {user: {error: 1}};
+                            return {error: 1, username: user.username};
                         }
                     });
                 })).then(result => {
                     res.json(result);
-                });
+                }).catch(err => {
+                    res.status(500).json(err);
+                })
 
             }, err => {
                 res.status(500).json(err);
