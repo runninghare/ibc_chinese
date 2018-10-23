@@ -28,18 +28,6 @@ class App {
 
         this.express.use(cors());
 
-        this.express.use(frameguard({
-            action: 'allow-from',
-            domain: 'http://ibc.medocs.com.au'
-        }));
-
-        // this.express.use((req, res, next) => {
-        //     res.header("Access-Control-Allow-Origin", "*");
-        //     res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
-        //     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-        //     next();
-        // });
-
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(cookieParser());
@@ -73,6 +61,19 @@ class App {
                 bar: function() { return 'BAR!'; }
             }
         });
+
+        this.express.use((req, res, next) => {
+            // res.header("Access-Control-Allow-Origin", "*");
+            // res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+            // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+            res.removeHeader('X-Frame-Options');
+            next();
+        });        
+
+        this.express.use(frameguard({
+            action: 'allow-from',
+            domain: 'http://ibc.medocs.com.au'
+        }));
 
         this.express.engine('handlebars', hbs.engine);
         this.express.set('view engine', 'handlebars');
