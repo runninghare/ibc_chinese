@@ -1,0 +1,22 @@
+{{#each ministries}}
+    <div class="ui center container" style="margin-top: 1rem">
+        <h2 class="ui center aligned header">{{date}}</h2>
+        <table class="ui celled unstackable table">
+          <tbody>
+            {{#each ../ministryRoles}}
+                <tr>
+                  <td width="30%"><b>{{caption}}</b></td>
+                  <td width="40%">{{lookup (lookup .. key) 'name'}}</td>
+                  <td width="30%">
+                    {{#if (lookup (lookup .. key) 'confirm')}}
+                    <div style="color: #00C853">已确认</div>
+                    {{/if}}
+                  </td>
+                </tr>
+            {{/each}}
+          </tbody>
+        </table>
+    </div>
+{{/each}} 
+
+ 
