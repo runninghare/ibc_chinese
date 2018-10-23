@@ -15,6 +15,8 @@ import { MinistryRendererRoute } from './renderers/ministry';
 
 import { Passport } from './auth/authenticate';
 import * as cors from 'cors';
+import * as frameguard from 'frameguard';
+// const frameguard = require('frameguard')
 import * as exphbs from 'express-handlebars';
 // var exphbs  = require('express-handlebars');
 
@@ -25,6 +27,11 @@ class App {
         this.express = express();
 
         this.express.use(cors());
+
+        this.express.use(frameguard({
+            action: 'allow-from',
+            domain: 'http://ibc.medocs.com.au'
+        }));
 
         // this.express.use((req, res, next) => {
         //     res.header("Access-Control-Allow-Origin", "*");
