@@ -32,7 +32,7 @@ class App {
             // res.header("Access-Control-Allow-Origin", "*");
             // res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
             // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-            res.header('X-FRAME-OPTIONS', 'ALLOW-FROM http://www.google.com.au')
+            // res.header('X-FRAME-OPTIONS', 'ALLOW-FROM http://www.google.com.au')
             next();
         });
 
