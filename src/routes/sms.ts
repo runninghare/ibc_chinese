@@ -122,9 +122,9 @@ export class SMSRoute {
                 })).then(result => {
                     res.json(result);
                 });
-            }, err => {
+            }).catch(err => {
                 res.status(500).json(err);
-            });            
+            });   
         });
     }
 

@@ -17,7 +17,7 @@ var UserSchema = IbcDB.mongoose.Schema({
         province: String,
         country: String,
         headimgurl: String,
-        privilege: []
+        privilege: { type: [String], default: undefined }
     }
 });
 

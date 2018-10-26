@@ -72,6 +72,20 @@ export class IbcDB {
         });
     }
 
+    public static remove<T>(query: any): Promise<T[]> {
+        // const child_constructor = this.constructor as typeof IbcDB;
+
+        return new Promise<T[]>((resolve, reject) => {
+            (this as any).model.remove(query, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+        });
+    }
+
 }
 
 // db.on('error', console.error.bind(console, 'connection error:'));
