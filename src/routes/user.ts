@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as admin from 'firebase-admin';
 import { Passport } from '../auth/authenticate';
 import {makeRandomString} from '../utils';
+import {FirebaseDB as db} from '../firebase';
 
 import { User } from '../mongoose/user';
 
@@ -37,12 +38,35 @@ export class UserRoute {
 
             User.connect();
             User.insert({
+                id,
                 name,
                 email,
                 access_level,
                 password,
                 wechat: null
-            }).then(result => {
+            })
+            .then(res => {
+                return db.ref(`/contacts`).once('value').then(snapshot => {
+                    let contacts = snapshot.val();
+                    if (contacts) {
+                        Object.keys(contacts).forEach(id => {
+                            if (contacts[id].username == res['name']) {
+                                console.log(`ADD USER: ${JSON.stringify(contacts[id])}`);
+                                res['contactId'] = id;
+                            }
+                        })
+                    }
+
+                    if (res['contactId']) {
+                        return db.ref(`/userMap`).child(id).child('contactId').set(res['contactId']).then(result => {
+                            return res;
+                        })
+                    } else {
+                        return res;
+                    }
+                })
+            })
+            .then(result => {
                 res.json(result);
             }).catch(err => {
                 res.status(500).json(err);
@@ -72,9 +96,19 @@ export class UserRoute {
             }
 
             User.connect();
-            User.remove({
-                name
-            }).then(result => {
+            User.read({name}).then(result => {
+                let user = result && result[0];
+                if (user && user['id']) {
+                    console.log(`DELETE USER: ${JSON.stringify(result)}`);
+                    return db.ref(`/userMap`).child(user['id']).remove();
+                } else {
+                    return null;
+                }
+            })            
+            .then(result => {
+                return User.remove({name});
+            })
+            .then(result => {
                 res.json(result);
             }).catch(err => {
                 res.status(500).json(err);

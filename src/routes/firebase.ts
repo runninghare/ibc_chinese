@@ -148,10 +148,10 @@ export class FirebaseHandler {
                 //     res.status(400).json(err);
                 // });
 
-                if (contacts && Object.keys(contacts).indexOf(`${receiverId}`) > -1) {
+                if (contacts && contacts[`${receiverId}`]) {
                     let threadKey = null;
                     let thread = null;
-                    
+
                     if (threads) {
                         /* First we search the private conversations */
                         Object.keys(threads).forEach(k => {
@@ -166,7 +166,7 @@ export class FirebaseHandler {
                         if (!threadKey) {
                             Object.keys(threads).forEach(k => {
                                 let val = threads[k];
-                                if (val.type == 'public' && val.participants[receiverId]) {
+                                if (val.type == 'public' && contacts[`${receiverId}`].class == 'group' && val.participants[receiverId]) {
                                     threadKey = k;
                                     thread = threads[k];
                                 }
