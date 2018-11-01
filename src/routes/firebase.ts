@@ -63,6 +63,55 @@ export class FirebaseHandler {
             }
         });
 
+        this.router.post('/replace_db', (req, res, next) => {
+            let body = req.body;
+            let key = body && body.key;
+            let patterns = body && body.patterns;
+            let dryRun = body && body.dryRun;
+            let access_level = req['user'] && req['user'].access_level;
+
+            if (!key || !patterns || !Array.isArray(patterns)) {
+                res.status(400).json({error: 'missing key or patterns property, or patterns property is not an array'});
+            } else if (access_level >= 5) {
+                db.ref(`/`).once('value', snapshot => {
+                    let oldFullList = snapshot.val();
+                    db.ref(key).once('value').then(snapshot => {
+                        let value = snapshot.val();
+                        if (value) {
+                           let originalString = JSON.stringify(value);
+                           let currentString = originalString;
+                           patterns.forEach(p => {
+                               let regex = new RegExp(p.pattern,'g');
+                               currentString = currentString.replace(regex, p.newString);
+                           });
+                           let newValue = null;
+                           try {
+                               newValue = JSON.parse(currentString);
+                               if (dryRun) {
+                                   res.json(newValue);
+                               } else {
+                                   db.ref(key).set(newValue).then(result => {
+                                       res.json(newValue);
+                                   });
+                               }
+                           } catch (e) {
+                               res.status(400).json({error: 'Fail to replace the value!'});
+                           }
+                        } else {
+                            res.status(400).json({error: 'Fail to load the data!'});
+                        }
+                    })
+                    // db.ref(key).set(value).then(result => {
+                    //     res.json(oldFullList);
+                    // })
+                }, error => {
+                    res.status(500).json(error);
+                })
+            } else {
+                res.status(401).json({error: "You don't have permission to do this operation"});
+            }
+        });        
+
         this.router.post('/update_cache', (req, res, next) => {
             db.ref(`/updateCaches`).once('value', snapshot => {
                 let val = snapshot.val();

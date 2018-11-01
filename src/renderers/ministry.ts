@@ -9,17 +9,19 @@ export class MinistryRendererRoute {
     public router: express.Router;
 
     ministryRoles = [
-        { key: 'preacher', caption: '傳道', optionGetter: 'preacherCandidates' },
-        { key: 'interpreter', caption: '翻譯', optionGetter: 'interpreterCandidates' },
         { key: 'leader', caption: '主席', optionGetter: 'leaderCandidates' },
+        { key: 'preacher', caption: '講員', optionGetter: 'preacherCandidates' },
+        { key: 'interpreter', caption: '傳譯', optionGetter: 'interpreterCandidates' },
         { key: 'choir1', caption: '敬拜1', optionGetter: 'choirCandidates' },
         { key: 'choir2', caption: '敬拜2', optionGetter: 'choirCandidates' },
+        { key: 'music1', caption: '司樂1', optionGetter: 'musicCandidates' },
+        { key: 'music2', caption: '司樂2', optionGetter: 'musicCandidates' },
         { key: 'assistant1', caption: '司事1', optionGetter: 'assistantCandidates' },
         { key: 'assistant2', caption: '司事2', optionGetter: 'assistantCandidates' },
-        { key: 'music', caption: '司琴', optionGetter: 'musicCandidates' },
-        { key: 'technician', caption: '影音', optionGetter: 'techCandidates' },
-        { key: 'communion1', caption: '主餐1', optionGetter: 'communionCandidates' },
-        { key: 'communion2', caption: '主餐2', optionGetter: 'communionCandidates' }
+        { key: 'techanician', caption: '影音', optionGetter: 'techCandidates' },
+        { key: 'morningtea', caption: '茶點', optionGetter: 'morningteaCandidates' },
+        { key: 'communion1', caption: '襄禮1', optionGetter: 'communionCandidates' },
+        { key: 'communion2', caption: '襄禮2', optionGetter: 'communionCandidates' },
     ];
 
     constructor() {
