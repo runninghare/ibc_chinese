@@ -24,9 +24,9 @@ export class UserRoute {
                 return;
             }
 
-            let name = body.name;
-            let email = body.email;
-            let access_level = body.access_level;
+            let name: string = body.name;
+            let email: string = body.email;
+            let access_level: number = body.access_level;
 
             if (!name || !email || !access_level) {
                 res.status(401).json({error: 'You must provide "name", "email" and "access_level" properties.'});
@@ -37,13 +37,24 @@ export class UserRoute {
             let id = `ibc_${makeRandomString(8)}`;
 
             User.connect();
-            User.insert({
-                id,
-                name,
-                email,
-                access_level,
-                password,
-                wechat: null
+            User.read({name: name.toLowerCase()})
+            .then(result => {
+                let existing = result[0];
+                if (existing) {
+                    throw({error: `User with name ${name} already exists!`});
+                } else {
+                    return null;
+                }
+            })
+            .then(res => {
+                return User.insert({
+                    id,
+                    name: name.toLowerCase(),
+                    email: email.toLowerCase(),
+                    access_level,
+                    password,
+                    wechat: null
+                })
             })
             .then(res => {
                 return db.ref(`/contacts`).once('value').then(snapshot => {
@@ -68,7 +79,8 @@ export class UserRoute {
             })
             .then(result => {
                 res.json(result);
-            }).catch(err => {
+            })
+            .catch(err => {
                 res.status(500).json(err);
             });
             // User.model.find({ name: body.username.replace(/\s+/g,'').toLowerCase(), password: body.password.replace(/\s+/g,'').toLowerCase() || 'xxx' }, createAuthHandler(res));
