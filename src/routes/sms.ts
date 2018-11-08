@@ -55,7 +55,7 @@ export class SMSRoute {
                     return User.model.update({ name: user.username.toLowerCase() }, {
                         $set: { password: newPassword }
                     }).then(res => {
-                        if (res && res.nModified && user.mobile) {
+                        if (res && res.nModified && user.mobile && user.mobile.match(/^\d+$/)) {
                             if (sendSms) {
                                 return telstra.sendSMS(user.mobile, Mustache.render(body && body.template ||
 `您好，您的依斯靈頓中文教會APP密碼已重置。
