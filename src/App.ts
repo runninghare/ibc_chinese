@@ -19,6 +19,7 @@ import * as cors from 'cors';
 import * as frameguard from 'frameguard';
 // const frameguard = require('frameguard')
 import * as exphbs from 'express-handlebars';
+import { BackupFB } from './utils/backup_firebase';
 // var exphbs  = require('express-handlebars');
 
 class App {
@@ -43,6 +44,9 @@ class App {
 
         this.mountRoutes();
         this.mountRenderers();
+
+        let fbBackupObj = new BackupFB();
+        fbBackupObj.backupScheduler(3600000);
     }
 
     private mountRoutes(): void {
