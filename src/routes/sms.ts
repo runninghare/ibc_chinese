@@ -117,10 +117,19 @@ export class SMSRoute {
                     userDetails.push(contact);
                 });
 
-                Promise.all(userDetails.map(user => {
+                let validUsers = userDetails.filter(user => user.mobile && user.mobile.match(/^\d+$/));
+                let invalidUsers = userDetails.filter(user => validUsers.indexOf(user) < 0);
+
+                Promise.all(validUsers.map(user => {
                     return telstra.sendSMS(user.mobile, Mustache.render(template, user));
                 })).then(result => {
-                    res.json(result);
+                    res.json({succss: result, failure: {error: '没有有效手机号码', users: invalidUsers.map(u => {return {
+                        username: u.username,
+                        name: u.name,
+                        chinese_name: u.chinese_name
+                    }})}});
+                }).catch(err => {
+                    res.status(400).json(err);
                 });
             }).catch(err => {
                 res.status(500).json(err);
