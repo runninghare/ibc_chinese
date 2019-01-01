@@ -9,6 +9,7 @@ import { WeChatRoute } from './routes/wechat';
 import { FirebaseHandler } from './routes/firebase';
 import { SMSRoute } from './routes/sms';
 import { UserRoute } from './routes/user';
+import { BibleRoute } from './routes/bible';
 import { Express, Request, Response } from 'express';
 
 import { HomeRendererRoute } from './renderers/home';
@@ -64,6 +65,7 @@ class App {
         this.express.use('/firebase', Passport.authenticate('bearer', { session: false }), new FirebaseHandler().router);
         this.express.use('/sms', Passport.authenticate('bearer', { session: false }), new SMSRoute().router);
         this.express.use('/user', Passport.authenticate('bearer', { session: false }), new UserRoute().router);
+        this.express.use('/bible', Passport.authenticate('bearer', { session: false }), new BibleRoute().router);
     }
 
     private mountRenderers(): void {
