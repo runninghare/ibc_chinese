@@ -36,7 +36,22 @@ export class BibleRoute {
             }, error => {
                 res.status(400).json(error);
             });
-        })
+        });
+
+        this.router.post('/search', (req, res) => {
+            // knex('Bible').select('*').limit(5)
+            let keyword = req.body['keyword'];
+            if (!keyword) {
+                res.status(400).json({Error: 'keyword missing!'});
+            }
+            let english = keyword.match(/[A-Za-z]/);
+            knex('Bible').innerJoin('BibleID', 'Bible.VolumeSN', 'BibleID.SN').where(english?'English':'Chinese', 'like', `%${keyword}%`).select('*')
+            .then(data => {
+                res.json(data);
+            }, error => {
+                res.status(400).json(error);
+            });
+        });        
     }
 
 }
