@@ -65,7 +65,7 @@ class App {
         this.express.use('/firebase', Passport.authenticate('bearer', { session: false }), new FirebaseHandler().router);
         this.express.use('/sms', Passport.authenticate('bearer', { session: false }), new SMSRoute().router);
         this.express.use('/user', Passport.authenticate('bearer', { session: false }), new UserRoute().router);
-        this.express.use('/bible', Passport.authenticate('bearer', { session: false }), new BibleRoute().router);
+        this.express.use('/bible', new BibleRoute().router);
     }
 
     private mountRenderers(): void {
